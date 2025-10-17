@@ -1,0 +1,19 @@
+{
+  "source": "https://news.google.com/rss/topics/business",
+  "title": "Google News - Business",
+  "updatedAt": "2025-10-17T12:00:00.000Z",
+  "items": [
+    {
+      "title": "[CRYPTO] Decentralized Autonomous Corporations Hit $1 Trillion",
+      "link": "https://example.com/dao-trillion-market",
+      "isoDate": "2025-10-17T11:00:00.000Z",
+      "summary": "Blockchain-based organizations without traditional management structures now control significant portions of global economy."
+    },
+    {
+      "title": "[ECONOMY] Universal Basic Income Pilots Show 300% Productivity Gain",
+      "link": "https://example.com/ubi-productivity-gains",
+      "isoDate": "2025-10-17T09:30:00.000Z",
+      "summary": "Cities implementing UBI report massive increases in innovation and entrepreneurship as citizens pursue passion projects."
+    }
+  ]
+}

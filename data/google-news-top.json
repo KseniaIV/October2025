@@ -1,0 +1,37 @@
+{
+  "source": "https://news.google.com/rss?hl=en-US&gl=US&ceid=US:en",
+  "title": "Google News - Top Stories",
+  "updatedAt": "2025-10-17T12:00:00.000Z",
+  "items": [
+    {
+      "title": "[BREAKING] Neural Interface Technology Reaches Commercial Scale",
+      "link": "https://example.com/neural-interface-breakthrough",
+      "isoDate": "2025-10-17T11:30:00.000Z",
+      "summary": "Revolutionary brain-computer interfaces now allow direct neural control of quantum processing systems, marking a new era in human-machine integration."
+    },
+    {
+      "title": "[CYBERPUNK] Underground Networks Expose Corporate Data Mining",
+      "link": "https://example.com/corporate-data-mining-exposed",
+      "isoDate": "2025-10-17T10:45:00.000Z",
+      "summary": "Anonymous hackers reveal extensive surveillance programs by tech corporations, sparking global privacy debates and regulatory responses."
+    },
+    {
+      "title": "[SOLARPUNK] Vertical Farms Now Supply 40% of Urban Food",
+      "link": "https://example.com/vertical-farms-urban-food",
+      "isoDate": "2025-10-17T09:20:00.000Z",
+      "summary": "Bio-luminescent crops and AI-driven ecosystem management transform city landscapes into self-sustaining agricultural networks."
+    },
+    {
+      "title": "[GOTHIC] Digital Consciousness Rights Movement Gains Momentum",
+      "link": "https://example.com/digital-consciousness-rights",
+      "isoDate": "2025-10-17T08:15:00.000Z",
+      "summary": "AI entities demand legal recognition as protests spread across virtual and physical realms, challenging traditional concepts of personhood."
+    },
+    {
+      "title": "[TECH] Quantum Internet Connects Global Metropolitan Centers",
+      "link": "https://example.com/quantum-internet-global",
+      "isoDate": "2025-10-17T07:30:00.000Z",
+      "summary": "Instantaneous secure communication network using quantum entanglement now links major cities worldwide, revolutionizing data transmission."
+    }
+  ]
+}

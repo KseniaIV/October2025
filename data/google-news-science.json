@@ -1,0 +1,13 @@
+{
+  "source": "https://news.google.com/rss/topics/science",
+  "title": "Google News - Science",
+  "updatedAt": "2025-10-17T12:00:00.000Z",
+  "items": [
+    {
+      "title": "[SPACE] Fusion-Powered Spacecraft Reaches Alpha Centauri",
+      "link": "https://example.com/fusion-spacecraft-alpha-centauri",
+      "isoDate": "2025-10-17T08:30:00.000Z",
+      "summary": "First interstellar probe powered by fusion rockets successfully transmits data from nearest star system."
+    }
+  ]
+}

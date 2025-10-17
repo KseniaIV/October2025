@@ -1,0 +1,13 @@
+{
+  "source": "https://news.google.com/rss/topics/sports",
+  "title": "Google News - Sports",
+  "updatedAt": "2025-10-17T12:00:00.000Z",
+  "items": [
+    {
+      "title": "[ESPORTS] Neural Interface Gaming Championships Begin",
+      "link": "https://example.com/neural-gaming-championships",
+      "isoDate": "2025-10-17T10:00:00.000Z",
+      "summary": "First competitive tournaments using brain-computer interfaces allow players to control games with pure thought."
+    }
+  ]
+}

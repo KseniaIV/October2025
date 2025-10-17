@@ -1,0 +1,13 @@
+{
+  "source": "https://news.google.com/rss/topics/health",
+  "title": "Google News - Health",
+  "updatedAt": "2025-10-17T12:00:00.000Z",
+  "items": [
+    {
+      "title": "[BIOMOD] Gene Therapy Reverses Aging in Human Trials",
+      "link": "https://example.com/gene-therapy-aging-reversal",
+      "isoDate": "2025-10-17T09:00:00.000Z",
+      "summary": "Revolutionary treatments using engineered telomeres successfully restore cellular youth in clinical studies."
+    }
+  ]
+}

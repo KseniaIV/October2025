@@ -1,0 +1,37 @@
+{
+  "source": "https://news.google.com/rss/topics/technology",
+  "title": "Google News - Technology",
+  "updatedAt": "2025-10-17T12:00:00.000Z",
+  "items": [
+    {
+      "title": "[AI] Machine Learning Models Achieve Quantum Supremacy",
+      "link": "https://example.com/ai-quantum-supremacy",
+      "isoDate": "2025-10-17T11:45:00.000Z",
+      "summary": "Advanced neural networks running on quantum processors solve complex problems in minutes that would take classical computers millennia."
+    },
+    {
+      "title": "[BLOCKCHAIN] Decentralized Internet Infrastructure Goes Live",
+      "link": "https://example.com/decentralized-internet-live",
+      "isoDate": "2025-10-17T10:30:00.000Z",
+      "summary": "Peer-to-peer network protocols enable censorship-resistant web infrastructure, challenging traditional internet service providers."
+    },
+    {
+      "title": "[BIOTECH] Synthetic DNA Storage Replaces Traditional Data Centers",
+      "link": "https://example.com/dna-storage-data-centers",
+      "isoDate": "2025-10-17T09:15:00.000Z",
+      "summary": "Engineered biological systems store exabytes of information in microscopic DNA sequences, reducing energy consumption by 99%."
+    },
+    {
+      "title": "[NANOTECH] Molecular Assemblers Begin Industrial Production",
+      "link": "https://example.com/molecular-assemblers-industrial",
+      "isoDate": "2025-10-17T08:00:00.000Z",
+      "summary": "Programmable matter technology enables creation of any object from basic atomic components at unprecedented scale and precision."
+    },
+    {
+      "title": "[ROBOTICS] Autonomous Swarms Restore Ocean Ecosystems",
+      "link": "https://example.com/robot-swarms-ocean-restoration",
+      "isoDate": "2025-10-17T07:45:00.000Z",
+      "summary": "Millions of coordinated marine robots work together to neutralize pollution and rebuild coral reef systems worldwide."
+    }
+  ]
+}
