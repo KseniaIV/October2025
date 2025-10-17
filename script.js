@@ -6,6 +6,16 @@ class GoogleNewsRSSReader {
         this.errorElement = document.getElementById('error');
         this.searchInput = document.getElementById('searchInput');
         
+        // JSON data files mapping
+        this.dataFiles = {
+            general: '/data/google-news-top.json',
+            technology: '/data/google-news-tech.json',
+            business: '/data/google-news-business.json',
+            sports: '/data/google-news-sports.json',
+            health: '/data/google-news-health.json',
+            science: '/data/google-news-science.json'
+        };
+        
         this.initializeEventListeners();
         this.loadNews();
     }
@@ -94,9 +104,9 @@ class GoogleNewsRSSReader {
             }
 
             // Try multiple RSS-to-JSON services
+            const apiKeyParam = this.rss2jsonApiKey ? `&api_key=${this.rss2jsonApiKey}` : '';
             const services = [
-                `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}&count=50`,
-                `https://cors-anywhere.herokuapp.com/${rssUrl}`,
+                `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}&count=50${apiKeyParam}`,
                 `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`
             ];
 
@@ -129,7 +139,7 @@ class GoogleNewsRSSReader {
             }
 
             if (newsData && newsData.length > 0) {
-                this.displayNews(newsData);
+                this.displayNews(newsData, false);
             } else {
                 console.log('No real news data available, showing demo content');
                 this.displayDemoNews();
@@ -166,13 +176,38 @@ class GoogleNewsRSSReader {
         return articles;
     }
 
-    displayNews(articles) {
+    displayNews(articles, isDemoContent = false) {
         this.hideLoading();
         this.newsContainer.innerHTML = '';
 
+        // Show demo content notice
+        if (isDemoContent) {
+            const demoNotice = document.createElement('div');
+            demoNotice.style.cssText = `
+                grid-column: 1 / -1;
+                background: rgba(255, 0, 150, 0.1);
+                border: 1px solid #ff0096;
+                border-radius: 8px;
+                padding: 20px;
+                margin-bottom: 20px;
+                text-align: center;
+                color: #ff0096;
+                font-family: 'Courier New', monospace;
+            `;
+            demoNotice.innerHTML = `
+                <i class="fas fa-info-circle" style="margin-right: 10px;"></i>
+                <strong>DEMO MODE:</strong> Showing sample content. 
+                <a href="#" onclick="alert('Get API key from rss2json.com and add it to script.js')" 
+                   style="color: #00ff41; text-decoration: underline;">
+                   Add RSS2JSON API key for real Google News
+                </a>
+            `;
+            this.newsContainer.appendChild(demoNotice);
+        }
+
         if (!articles || articles.length === 0) {
-            this.newsContainer.innerHTML = `
-                <div style="text-align: center; padding: 50px; color: #7f8c8d; grid-column: 1 / -1;">
+            this.newsContainer.innerHTML += `
+                <div style="text-align: center; padding: 50px; color: #80ff80; grid-column: 1 / -1;">
                     <i class="fas fa-newspaper" style="font-size: 3em; margin-bottom: 20px; opacity: 0.3;"></i>
                     <h3>No news articles found</h3>
                     <p>Try a different search term or category.</p>
@@ -340,7 +375,7 @@ class GoogleNewsRSSReader {
             }
         ];
 
-        this.displayNews(demoArticles);
+        this.displayNews(demoArticles, true);
     }
 
     stripHtml(html) {
