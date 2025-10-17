@@ -1,12 +1,13 @@
 # Google News RSS Reader
 
-Web app that displays news from Google News RSS feeds. Built with HTML, CSS, and JavaScript.
+Cyberpunk-themed web app that displays news from pre-generated JSON files. Uses Node.js to fetch RSS feeds and convert them to static JSON data.
 
 ## Features
 
 - Browse news by category (Tech, Business, Sports, etc.)
-- Search for specific topics
-- Responsive design
+- Search across all categories
+- Cyberpunk/solarpunk gothic design
+- Static file approach (no CORS issues!)
 - Works offline
 
 ## Live Demo
@@ -16,43 +17,55 @@ Web app that displays news from Google News RSS feeds. Built with HTML, CSS, and
 ## Usage
 
 - Click category tabs to filter news
-- Use search bar for specific topics
+- Use search bar to find articles across all categories
 - Click articles to read more
-- Refresh button for latest updates
+- Refresh button reloads current category
 
 ## Tech Stack
 
-- HTML/CSS/JavaScript
-- RSS2JSON API
-- Font Awesome icons
-- GitHub Pages
+- Frontend: HTML/CSS/JavaScript (cyberpunk theme)
+- Backend: Node.js + rss-parser
+- Data: Static JSON files
+- Deployment: GitHub Pages
 
-## Test
+## Setup
 
-Clone and run locally:
+1. **Install dependencies:**
    ```bash
-   python -m http.server 8000
+   npm install
    ```
 
+2. **Generate news data:**
+   ```bash
+   npm run fetch-news
+   ```
 
+3. **Run locally:**
+   ```bash
+   npm run dev
+   ```
 
-## Getting Real Google News
+## How It Works
 
-The app includes a **custom RSS parser** that converts RSS XML to JSON directly in the browser! 
+1. **RSS to JSON**: Node.js script fetches Google News RSS feeds and converts them to JSON files
+2. **Static Data**: JSON files are served as static assets (no CORS issues!)
+3. **Frontend**: JavaScript loads JSON files and renders the news
+4. **Search**: Client-side search across all categories
 
-CORS blocks direct access to Google News, but we work around it with:
+## Files
 
-1. **Custom RSS Parser** - Pure JavaScript RSS-to-JSON converter
-2. **CORS Proxies** - Public services that bypass CORS restrictions  
-3. **RSS2JSON API** - Optional external service
-4. **Demo Content** - Cyberpunk-themed fallback
+- `scripts/rss-to-json.js` - Fetches RSS and generates JSON
+- `data/*.json` - Generated news data files
+- `index.html` - Main page
+- `styles.css` - Cyberpunk styling
+- `script.js` - Frontend logic
+- `package.json` - Node.js dependencies
 
-### To get real Google News:
+## Deployment
 
-**Option 1: Use built-in CORS proxies (default)**
-- No setup needed! App automatically tries multiple proxy services
-- Works out of the box for most users
+For GitHub Pages:
+1. Run `npm run fetch-news` to generate latest data
+2. Commit and push the `/data` folder
+3. GitHub Pages serves the static files
 
-**Option 2: Add RSS2JSON API key (optional)**
-- Get free key from [rss2json.com](https://rss2json.com) for more reliability
-- Add your key to `script.js`: `this.rss2jsonApiKey = 'YOUR_KEY';`
+For automated updates, you can set up GitHub Actions to run the RSS fetch script on a schedule.

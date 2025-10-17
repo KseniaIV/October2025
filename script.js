@@ -84,64 +84,21 @@ class GoogleNewsRSSReader {
 
     async fetchNews(searchQuery = null) {
         try {
-            let rssUrl;
-            
-            if (searchQuery) {
-                // Search for specific topics
-                rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(searchQuery)}&hl=en&gl=US&ceid=US:en`;
-            } else {
-                // Category-based news with correct Google News RSS URLs
-                const categoryUrls = {
-                    general: 'https://news.google.com/rss?hl=en&gl=US&ceid=US:en',
-                    technology: 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRFp0Y0RvU0FtVnVHZ0pWVXlnQVAB?hl=en&gl=US&ceid=US:en',
-                    business: 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGx1YlhNU0FtVnVHZ0pWVXlnQVAB?hl=en&gl=US&ceid=US:en',
-                    sports: 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRFp1ZEdvU0FtVnVHZ0pWVXlnQVAB?hl=en&gl=US&ceid=US:en',
-                    health: 'https://news.google.com/rss/topics/CAAqIQgKIhtDQkFTRGdvSUwyMHZNR3QwTlRFU0FtVnVLQUFQAQ?hl=en&gl=US&ceid=US:en',
-                    science: 'https://news.google.com/rss/topics/CAAqKggKIiRDQkFTRlFvSUwyMHZNRFp0Y0RvU0FtVnVHZ0pWVXlnQVAB?hl=en&gl=US&ceid=US:en'
-                };
-                
-                rssUrl = categoryUrls[this.currentCategory] || categoryUrls.general;
-            }
-
-            // Try multiple RSS-to-JSON services
-            const apiKeyParam = this.rss2jsonApiKey ? `&api_key=${this.rss2jsonApiKey}` : '';
-            const services = [
-                `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}&count=50${apiKeyParam}`,
-                `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`
-            ];
-
             let newsData = null;
             
-            // Try RSS2JSON first
-            try {
-                const response = await fetch(services[0]);
-                const data = await response.json();
-                if (data.status === 'ok' && data.items && data.items.length > 0) {
-                    newsData = data.items;
-                }
-            } catch (e) {
-                console.log('RSS2JSON failed, trying alternatives...');
-            }
-
-            // If RSS2JSON fails, try direct RSS parsing with CORS proxy
-            if (!newsData) {
-                try {
-                    const response = await fetch(services[2]);
-                    const data = await response.json();
-                    if (data.contents) {
-                        const parser = new DOMParser();
-                        const xmlDoc = parser.parseFromString(data.contents, 'text/xml');
-                        newsData = this.parseRSSFeed(xmlDoc);
-                    }
-                } catch (e) {
-                    console.log('CORS proxy failed');
-                }
+            if (searchQuery) {
+                // For search, filter through all categories
+                newsData = await this.searchInAllCategories(searchQuery);
+            } else {
+                // Load specific category data
+                const dataFile = this.dataFiles[this.currentCategory] || this.dataFiles.general;
+                newsData = await this.loadFromJSON(dataFile);
             }
 
             if (newsData && newsData.length > 0) {
                 this.displayNews(newsData, false);
             } else {
-                console.log('No real news data available, showing demo content');
+                console.log('📰 No news data available, showing demo content');
                 this.displayDemoNews();
             }
             
@@ -149,6 +106,61 @@ class GoogleNewsRSSReader {
             console.error('Fetch error:', error);
             this.displayDemoNews();
         }
+    }
+
+    async loadFromJSON(filePath) {
+        try {
+            console.log(`📡 Loading news from: ${filePath}`);
+            const response = await fetch(filePath);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            const data = await response.json();
+            console.log(`✅ Loaded ${data.items?.length || 0} articles from ${data.title || 'feed'}`);
+            
+            // Transform the data format to match our display format
+            return data.items?.map(item => ({
+                title: item.title,
+                description: item.summary || '',
+                link: item.link,
+                pubDate: item.isoDate,
+                source: this.extractDomain(item.link)
+            })) || [];
+            
+        } catch (error) {
+            console.error(`❌ Failed to load ${filePath}:`, error.message);
+            return null;
+        }
+    }
+
+    async searchInAllCategories(query) {
+        const allResults = [];
+        
+        // Load data from all categories and search
+        for (const [category, filePath] of Object.entries(this.dataFiles)) {
+            try {
+                const categoryData = await this.loadFromJSON(filePath);
+                if (categoryData) {
+                    // Filter articles that match the search query
+                    const filtered = categoryData.filter(article => 
+                        article.title.toLowerCase().includes(query.toLowerCase()) ||
+                        (article.description && article.description.toLowerCase().includes(query.toLowerCase()))
+                    );
+                    allResults.push(...filtered);
+                }
+            } catch (e) {
+                console.log(`Skip category ${category}:`, e.message);
+            }
+        }
+        
+        // Remove duplicates and sort by date
+        const uniqueResults = allResults.filter((article, index, self) => 
+            index === self.findIndex(a => a.link === article.link)
+        );
+        
+        return uniqueResults.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
     }
 
     parseRSSFeed(xmlDoc) {
