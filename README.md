@@ -27,27 +27,14 @@ Web app that displays news from Google News RSS feeds. Built with HTML, CSS, and
 - Font Awesome icons
 - GitHub Pages
 
-## Setup
+## Test
 
-1. Clone and run locally:
+Clone and run locally:
    ```bash
-   git clone https://github.com/yourusername/repo-name.git
    python -m http.server 8000
    ```
 
-2. Deploy to GitHub Pages:
-   - Push to GitHub
-   - Enable Pages in repo settings
-   - Auto-deploys on push to main branch
 
-## Files
-
-- `index.html` - Main page
-- `styles.css` - Styling  
-- `script.js` - News fetching logic
-- `config.js` - Settings
-- `manifest.json` - PWA config
-- `sw.js` - Service worker
 
 ## Notes
 

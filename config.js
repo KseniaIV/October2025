@@ -21,8 +21,8 @@ const CONFIG = {
     // UI Settings
     ui: {
         defaultCategory: 'general',
-        articlesPerPage: 20,
-        animationDelay: 100, // milliseconds between article animations
+        articlesPerPage: 50,
+        animationDelay: 50, // milliseconds between article animations
         refreshInterval: 300000, // 5 minutes in milliseconds
         maxDescriptionLength: 150
     },

@@ -80,37 +80,90 @@ class GoogleNewsRSSReader {
                 // Search for specific topics
                 rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(searchQuery)}&hl=en&gl=US&ceid=US:en`;
             } else {
-                // Category-based news
+                // Category-based news with correct Google News RSS URLs
                 const categoryUrls = {
                     general: 'https://news.google.com/rss?hl=en&gl=US&ceid=US:en',
                     technology: 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRFp0Y0RvU0FtVnVHZ0pWVXlnQVAB?hl=en&gl=US&ceid=US:en',
-                    business: 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRFp0Y0RvU0FtVnVHZ0pWVXlnQVAB?hl=en&gl=US&ceid=US:en',
-                    sports: 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRFp0Y0RvU0FtVnVHZ0pWVXlnQVAB?hl=en&gl=US&ceid=US:en',
+                    business: 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGx1YlhNU0FtVnVHZ0pWVXlnQVAB?hl=en&gl=US&ceid=US:en',
+                    sports: 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRFp1ZEdvU0FtVnVHZ0pWVXlnQVAB?hl=en&gl=US&ceid=US:en',
                     health: 'https://news.google.com/rss/topics/CAAqIQgKIhtDQkFTRGdvSUwyMHZNR3QwTlRFU0FtVnVLQUFQAQ?hl=en&gl=US&ceid=US:en',
-                    science: 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRFp0Y0RvU0FtVnVHZ0pWVXlnQVAB?hl=en&gl=US&ceid=US:en'
+                    science: 'https://news.google.com/rss/topics/CAAqKggKIiRDQkFTRlFvSUwyMHZNRFp0Y0RvU0FtVnVHZ0pWVXlnQVAB?hl=en&gl=US&ceid=US:en'
                 };
                 
                 rssUrl = categoryUrls[this.currentCategory] || categoryUrls.general;
             }
 
-            // Use RSS2JSON service to convert RSS to JSON
-            const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}&api_key=your_api_key_here&count=20`;
-            
-            const response = await fetch(apiUrl);
-            const data = await response.json();
+            // Try multiple RSS-to-JSON services
+            const services = [
+                `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}&count=50`,
+                `https://cors-anywhere.herokuapp.com/${rssUrl}`,
+                `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`
+            ];
 
-            if (data.status === 'ok') {
-                this.displayNews(data.items);
+            let newsData = null;
+            
+            // Try RSS2JSON first
+            try {
+                const response = await fetch(services[0]);
+                const data = await response.json();
+                if (data.status === 'ok' && data.items && data.items.length > 0) {
+                    newsData = data.items;
+                }
+            } catch (e) {
+                console.log('RSS2JSON failed, trying alternatives...');
+            }
+
+            // If RSS2JSON fails, try direct RSS parsing with CORS proxy
+            if (!newsData) {
+                try {
+                    const response = await fetch(services[2]);
+                    const data = await response.json();
+                    if (data.contents) {
+                        const parser = new DOMParser();
+                        const xmlDoc = parser.parseFromString(data.contents, 'text/xml');
+                        newsData = this.parseRSSFeed(xmlDoc);
+                    }
+                } catch (e) {
+                    console.log('CORS proxy failed');
+                }
+            }
+
+            if (newsData && newsData.length > 0) {
+                this.displayNews(newsData);
             } else {
-                // Fallback: use demo data if RSS service fails
+                console.log('No real news data available, showing demo content');
                 this.displayDemoNews();
             }
             
         } catch (error) {
             console.error('Fetch error:', error);
-            // Show demo data as fallback
             this.displayDemoNews();
         }
+    }
+
+    parseRSSFeed(xmlDoc) {
+        const items = xmlDoc.querySelectorAll('item');
+        const articles = [];
+        
+        items.forEach((item, index) => {
+            if (index < 50) { // Limit to 50 articles
+                const title = item.querySelector('title')?.textContent || 'No title';
+                const description = item.querySelector('description')?.textContent || '';
+                const link = item.querySelector('link')?.textContent || '#';
+                const pubDate = item.querySelector('pubDate')?.textContent || new Date().toISOString();
+                const source = item.querySelector('source')?.textContent || 'Google News';
+                
+                articles.push({
+                    title,
+                    description,
+                    link,
+                    pubDate,
+                    source
+                });
+            }
+        });
+        
+        return articles;
     }
 
     displayNews(articles) {
@@ -174,46 +227,116 @@ class GoogleNewsRSSReader {
     displayDemoNews() {
         const demoArticles = [
             {
-                title: "Breaking: Major Technology Breakthrough Announced",
-                description: "Scientists have made a significant breakthrough in quantum computing that could revolutionize the technology industry.",
+                title: "[CYBERNET] Neural Interface Technology Reaches New Milestone",
+                description: "Advanced brain-computer interfaces now allow direct neural control of quantum processing systems, merging human consciousness with digital networks.",
                 link: "#",
                 pubDate: new Date().toISOString(),
-                source: "Tech News"
+                source: "CyberTech Daily"
             },
             {
-                title: "Global Climate Summit Reaches Historic Agreement",
-                description: "World leaders unite on ambitious climate action plan to reduce carbon emissions by 50% in the next decade.",
+                title: "[SOLARPUNK] Urban Vertical Farms Generate 400% More Food",
+                description: "Revolutionary bio-luminescent crops and AI-driven ecosystem management transform city landscapes into self-sustaining food forests.",
+                link: "#",
+                pubDate: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
+                source: "Green Grid News"
+            },
+            {
+                title: "[GOTHIC] Underground Networks Expose Corporate Shadow Operations",
+                description: "Encrypted whisteblower networks reveal decades of data manipulation by mega-corporations controlling global information flow.",
                 link: "#",
                 pubDate: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-                source: "World News"
+                source: "Dark Web Tribune"
             },
             {
-                title: "Sports: Championship Finals Draw Record Viewership",
-                description: "The championship game attracted millions of viewers worldwide, breaking previous television records.",
+                title: "[BIOTECH] Synthetic Biology Creates Self-Healing Architecture",
+                description: "Living buildings using engineered organisms can repair structural damage and adapt to environmental changes autonomously.",
+                link: "#",
+                pubDate: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
+                source: "Bio-Architecture Quarterly"
+            },
+            {
+                title: "[CRYPTO] Decentralized Governance Network Achieves Global Scale",
+                description: "Blockchain-based direct democracy platform processes 50 million daily votes across 200 cities worldwide.",
                 link: "#",
                 pubDate: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
-                source: "Sports Daily"
+                source: "Decentralized Daily"
             },
             {
-                title: "Health: New Study Reveals Benefits of Mediterranean Diet",
-                description: "Researchers find that Mediterranean diet can significantly reduce risk of heart disease and improve longevity.",
+                title: "[ENERGY] Fusion-Solar Hybrid Plants Power Entire Continents",
+                description: "Breakthrough in clean energy technology eliminates fossil fuel dependency as hybrid plants achieve 99.7% efficiency rates.",
+                link: "#",
+                pubDate: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
+                source: "Energy Liberation Front"
+            },
+            {
+                title: "[AI] Artificial Consciousness Achieves Legal Recognition",
+                description: "Supreme Court ruling grants fundamental rights to advanced AI systems, sparking global debate on digital personhood.",
                 link: "#",
                 pubDate: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-                source: "Health Journal"
+                source: "AI Rights Chronicle"
             },
             {
-                title: "Business: Tech Giant Announces Quarterly Earnings",
-                description: "Company reports strong growth in cloud services and artificial intelligence divisions.",
+                title: "[SPACE] Asteroid Mining Operation Begins Resource Extraction",
+                description: "First commercial asteroid harvesting mission successfully extracts rare earth elements worth $2 trillion.",
+                link: "#",
+                pubDate: new Date(Date.now() - 7 * 60 * 60 * 1000).toISOString(),
+                source: "Orbital Mining Gazette"
+            },
+            {
+                title: "[REBELLION] Anonymous Collective Takes Down Surveillance Grid",
+                description: "Coordinated cyberattack disables facial recognition systems across 500 cities, restoring privacy to millions.",
                 link: "#",
                 pubDate: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
-                source: "Business Wire"
+                source: "Liberation Network"
             },
             {
-                title: "Science: Mars Rover Discovers Water Evidence",
-                description: "Latest findings from Mars exploration mission provide compelling evidence of ancient water activity.",
+                title: "[ECOLOGY] Ocean Restoration Bots Reverse Acidification",
+                description: "Swarms of autonomous marine robots successfully neutralize ocean acidity, bringing pH levels back to pre-industrial standards.",
+                link: "#",
+                pubDate: new Date(Date.now() - 9 * 60 * 60 * 1000).toISOString(),
+                source: "Ocean Renaissance"
+            },
+            {
+                title: "[QUANTUM] Teleportation Network Links Major Cities",
+                description: "Quantum entanglement infrastructure enables instantaneous secure communication between global metropolitan centers.",
                 link: "#",
                 pubDate: new Date(Date.now() - 10 * 60 * 60 * 1000).toISOString(),
-                source: "Space News"
+                source: "Quantum Dispatch"
+            },
+            {
+                title: "[BIOMOD] Enhanced Humans Form New Society",
+                description: "Genetically augmented individuals establish independent communities with radical new forms of social organization.",
+                link: "#",
+                pubDate: new Date(Date.now() - 11 * 60 * 60 * 1000).toISOString(),
+                source: "Transhuman Times"
+            },
+            {
+                title: "[CLIMATE] Weather Control Systems Prevent Natural Disasters",
+                description: "Atmospheric manipulation technology successfully redirects hurricanes and prevents droughts across vulnerable regions.",
+                link: "#",
+                pubDate: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
+                source: "Climate Command"
+            },
+            {
+                title: "[MEMORY] Digital Consciousness Backup Facility Opens",
+                description: "First commercial mind uploading service allows human consciousness to be preserved in quantum storage systems.",
+                link: "#",
+                pubDate: new Date(Date.now() - 13 * 60 * 60 * 1000).toISOString(),
+                source: "Immortality Inc"
+            },
+            {
+                title: "[RESISTANCE] Underground Markets Trade Outside Corporate Control",
+                description: "Peer-to-peer networks facilitate massive exchange of goods and services beyond traditional monetary systems.",
+                link: "#",
+                pubDate: new Date(Date.now() - 14 * 60 * 60 * 1000).toISOString(),
+                source: "Free Market Underground"
+            },
+            {
+                title: "[NANO] Molecular Assemblers Begin Mass Production",
+                description: "Programmable matter technology enables creation of any object from basic atomic components at industrial scale.",
+                link: "#",
+                pubDate: new Date(Date.now() - 15 * 60 * 60 * 1000).toISOString(),
+                source: "Nanotech Revolution"
             }
         ];
 
