@@ -98,7 +98,7 @@ class GoogleNewsRSSReader {
             if (newsData && newsData.length > 0) {
                 this.displayNews(newsData, false);
             } else {
-                console.log('📰 No news data available, showing demo content');
+                console.log('📰 No JSON data available, showing demo content');
                 this.displayDemoNews();
             }
             
@@ -192,27 +192,46 @@ class GoogleNewsRSSReader {
         this.hideLoading();
         this.newsContainer.innerHTML = '';
 
-        // Show demo content notice
-        if (isDemoContent) {
+        // Show data source indicator
+        if (!isDemoContent && articles && articles.length > 0) {
+            const statusNotice = document.createElement('div');
+            statusNotice.style.cssText = `
+                grid-column: 1 / -1;
+                background: rgba(0, 255, 65, 0.1);
+                border: 1px solid #00ff41;
+                border-radius: 8px;
+                padding: 15px;
+                margin-bottom: 20px;
+                text-align: center;
+                color: #00ff41;
+                font-family: 'Courier New', monospace;
+                font-size: 0.9em;
+            `;
+            statusNotice.innerHTML = `
+                <i class="fas fa-satellite-dish" style="margin-right: 10px;"></i>
+                <strong>LIVE DATA:</strong> Showing real Google News articles
+                <span style="margin-left: 15px; color: #80ff80;">
+                    <i class="far fa-clock"></i> Updated ${new Date().toLocaleTimeString()}
+                </span>
+            `;
+            this.newsContainer.appendChild(statusNotice);
+        } else if (isDemoContent) {
             const demoNotice = document.createElement('div');
             demoNotice.style.cssText = `
                 grid-column: 1 / -1;
                 background: rgba(255, 0, 150, 0.1);
                 border: 1px solid #ff0096;
                 border-radius: 8px;
-                padding: 20px;
+                padding: 15px;
                 margin-bottom: 20px;
                 text-align: center;
                 color: #ff0096;
                 font-family: 'Courier New', monospace;
+                font-size: 0.9em;
             `;
             demoNotice.innerHTML = `
-                <i class="fas fa-info-circle" style="margin-right: 10px;"></i>
-                <strong>DEMO MODE:</strong> Showing sample content. 
-                <a href="#" onclick="alert('Get API key from rss2json.com and add it to script.js')" 
-                   style="color: #00ff41; text-decoration: underline;">
-                   Add RSS2JSON API key for real Google News
-                </a>
+                <i class="fas fa-flask" style="margin-right: 10px;"></i>
+                <strong>DEMO MODE:</strong> Sample cyberpunk news content
             `;
             this.newsContainer.appendChild(demoNotice);
         }
