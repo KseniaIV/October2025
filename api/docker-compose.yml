@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  # APISIX Gateway
+  apisix:
+    image: apache/apisix:3.7.0-debian
+    container_name: apisix-gateway
+    restart: unless-stopped
+    volumes:
+      - ./apisix.yml:/usr/local/apisix/conf/apisix.yaml:ro
+    ports:
+      - "9080:9080"
+      - "9091:9091"
+      - "9443:9443"
+    environment:
+      APISIX_STAND_ALONE: "true"
+    depends_on:
+      - rss-service
+    networks:
+      - apisix-network
+
+  # RSS Service
+  rss-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rss-service
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - HOST=0.0.0.0
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - apisix-network
+
+networks:
+  apisix-network:
+    driver: bridge
